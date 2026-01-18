@@ -1,2 +1,5 @@
-# folder-cleaner
-C# based folder-cleaner console application
+# Folder-Cleaner
+C# based Folder-Cleaner console application
+
+Readme documentation in progress.
+Please refer to folder-cleaner.exe --help for command line help.

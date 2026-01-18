@@ -1,0 +1,37 @@
+{
+  "Simulate": true,
+  "Profiles": {
+    "vs-basic": {
+      "DirectorySearchPatterns": [ ".vs" ],
+      "RecursiveSearch": true,
+      "RecursiveDelete": true,
+      "Priority": 0
+    },
+    "cmake-basic": {
+      "DirectorySearchPatterns": [ "cmake", "out" ],
+      "RecursiveSearch": true,
+      "RecursiveDelete": true,
+      "Priority": 0
+    },
+    "cs-basic": {
+      "DirectorySearchPatterns": [ "bin", "obj", "TestResults" ],
+      "RecursiveSearch": true,
+      "RecursiveDelete": true,
+      "Priority": 0
+    },
+    "cs-advanced": {
+      "FileSearchPatterns": [ "*.csproj.user", "*.pubxml.user" ],
+      "RecursiveSearch": true,
+      "Priority": 0
+    },
+    "sqlite-basic": {
+      "FileSearchPatterns": [ "data.db*" ],
+      "RecursiveSearch": true,
+      "Priority": 0
+    },
+    "cs-all": {
+      "LinkedProfiles": [ "cs-basic", "cs-advanced" ],
+      "Priority": 0
+    }
+  }
+}
