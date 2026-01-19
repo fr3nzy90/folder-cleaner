@@ -1,5 +1,4 @@
 {
-  "Simulate": true,
   "Profiles": {
     "vs-basic": {
       "DirectorySearchPatterns": [ ".vs" ],
