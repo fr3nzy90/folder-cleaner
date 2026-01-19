@@ -39,11 +39,11 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
     {
       if (parent is null)
       {
-        logger.LogInformation("Cleanup profile '{0}' started", name);
+        logger.LogDebug("Cleanup profile '{0}' started", name);
       }
       else
       {
-        logger.LogInformation("Linked cleanup profile '{0}' from '{1}' started", name, parent);
+        logger.LogDebug("Linked cleanup profile '{0}' from '{1}' started", name, parent);
       }
 
       DeleteFiles(root, profile, simulate);
@@ -51,11 +51,11 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
 
       if (parent is null)
       {
-        logger.LogInformation("Cleanup profile '{0}' completed", name);
+        logger.LogDebug("Cleanup profile '{0}' completed", name);
       }
       else
       {
-        logger.LogInformation("Linked cleanup profile '{0}' from '{1}' completed", name, parent);
+        logger.LogDebug("Linked cleanup profile '{0}' from '{1}' completed", name, parent);
       }
     }
   }

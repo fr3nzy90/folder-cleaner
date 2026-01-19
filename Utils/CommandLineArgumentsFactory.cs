@@ -10,7 +10,8 @@ internal static class CommandLineArgumentsFactory
   {
     CommandLineArguments result = new()
     {
-      Command = CommandLineCommand.NoAction
+      Command = CommandLineCommand.NoAction,
+      Logger = LoggingType.Silent
     };
 
     Option<string> rootOption = new("--root", ["-r"])
@@ -54,6 +55,22 @@ internal static class CommandLineArgumentsFactory
       Required = false,
       DefaultValueFactory = _ => false
     };
+    Option<bool> silentOption = new("--silent")
+    {
+      Description = "Log as little as possible",
+      AllowMultipleArgumentsPerToken = false,
+      Arity = ArgumentArity.ZeroOrOne,
+      Required = false,
+      DefaultValueFactory = _ => false
+    };
+    Option<bool> verboseOption = new("--verbose")
+    {
+      Description = "Log as much as possible",
+      AllowMultipleArgumentsPerToken = false,
+      Arity = ArgumentArity.ZeroOrOne,
+      Required = false,
+      DefaultValueFactory = _ => false
+    };
 
     rootOption.AcceptLegalFilePathsOnly();
     configOption.AcceptLegalFileNamesOnly();
@@ -64,6 +81,8 @@ internal static class CommandLineArgumentsFactory
     rootCommand.Options.Add(profileOption);
     rootCommand.Options.Add(simulateOption);
     rootCommand.Options.Add(listProfilesOption);
+    rootCommand.Options.Add(silentOption);
+    rootCommand.Options.Add(verboseOption);
     rootCommand.SetAction(r =>
       result = new()
       {
@@ -71,7 +90,8 @@ internal static class CommandLineArgumentsFactory
         ConfigurationFile = r.GetValue(configOption),
         Profiles = r.GetValue(profileOption),
         Simulate = r.GetValue(simulateOption),
-        Command = r.GetValue(listProfilesOption) ? CommandLineCommand.ListProfiles : CommandLineCommand.Clean
+        Command = r.GetValue(listProfilesOption) ? CommandLineCommand.ListProfiles : CommandLineCommand.Clean,
+        Logger = r.GetValue(silentOption) ? LoggingType.Silent : r.GetValue(verboseOption) ? LoggingType.Verbose : LoggingType.Normal
       });
 
     rootCommand

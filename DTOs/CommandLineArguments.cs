@@ -7,4 +7,5 @@ internal class CommandLineArguments
   public IList<string>? Profiles { get; init; }
   public bool Simulate { get; init; }
   public CommandLineCommand Command { get; init; }
+  public LoggingType Logger { get; init; }
 }

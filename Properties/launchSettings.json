@@ -2,7 +2,7 @@
   "profiles": {
     "Proto.Cleaner": {
       "commandName": "Project",
-      "commandLineArgs": "-r=.\\..\\..\\..\\..\\ -p=vs-basic cs-all -s"
+      "commandLineArgs": "-r=.\\..\\..\\..\\..\\ -p=vs-basic cs-all -s --verbose"
     }
   }
 }

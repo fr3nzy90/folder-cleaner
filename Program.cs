@@ -4,7 +4,8 @@ using FolderCleaner.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-ILogger logger = CustomLoggerFactory.CreateLogger<Program>();
+ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.SetupCustom(LoggingType.Verbose));
+ILogger logger = loggerFactory.CreateLogger<Program>();
 
 try
 {
@@ -15,8 +16,12 @@ try
     return;
   }
 
+  loggerFactory.Dispose();
+  loggerFactory = LoggerFactory.Create(builder => builder.SetupCustom(arguments.Logger));
+  logger = loggerFactory.CreateLogger<Program>();
+
   ServiceProvider serviceProvider = new ServiceCollection()
-    .Setup(arguments.ConfigurationFile!)
+    .Setup(arguments.ConfigurationFile!, arguments.Logger)
     .BuildServiceProvider();
 
   CleanerService cleanerService = serviceProvider.GetRequiredService<CleanerService>();
@@ -37,4 +42,8 @@ try
 catch (Exception e)
 {
   logger.LogCritical("Error while executing program. Error: {0}", e.Message);
+}
+finally
+{
+  loggerFactory.Dispose();
 }
