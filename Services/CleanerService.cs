@@ -22,7 +22,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
       throw new ArgumentException("Invalid parameter", nameof(root));
     }
 
-    logger.LogInformation("Folder cleanup initiated for {0} with simulate={1}", root, simulate);
+    logger.LogDebug("Folder cleanup initiated for {0} with simulate={1}", root, simulate);
 
     IList<(string name, string? parent, CleanupProfile profile)> profiles = GetProfiles(profileNames, null,
       configurationMonitor.CurrentValue?.Profiles ?? new Dictionary<string, CleanupProfile>())
@@ -31,7 +31,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
 
     if (profiles.Count == 0)
     {
-      logger.LogInformation("Nothing to do, no applicable cleanup profiles");
+      logger.LogDebug("Nothing to do, no applicable cleanup profiles");
       return;
     }
 
@@ -90,6 +90,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
   {
     SearchOption option = profile.RecursiveSearch ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
     Action<string> action = simulate ? path => { } : File.Delete;
+    bool deleted = false;
 
     profile.FileSearchPatterns?
       .Select(pattern => Directory.EnumerateFiles(root, pattern, option))
@@ -107,6 +108,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
           }
 
           action.Invoke(file);
+          deleted = true;
           logger.LogInformation("Deleted file: {0}", file);
         }
         catch (Exception e)
@@ -114,12 +116,18 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
           logger.LogError("Error while deleting file: {0}, Error: {1}", file, e.Message);
         }
       });
+
+    if (!deleted)
+    {
+      logger.LogDebug("No file to delete");
+    }
   }
 
   private void DeleteDirectories(string root, CleanupProfile profile, bool simulate)
   {
     SearchOption option = profile.RecursiveSearch ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
     Action<string> action = simulate ? path => { } : path => Directory.Delete(path, profile.RecursiveDelete);
+    bool deleted = false;
 
     profile.DirectorySearchPatterns?
       .Select(pattern => Directory.EnumerateDirectories(root, pattern, option))
@@ -137,6 +145,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
           }
 
           action.Invoke(directory);
+          deleted = true;
           logger.LogInformation("Deleted directory: {0}", directory);
         }
         catch (Exception e)
@@ -144,5 +153,10 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
           logger.LogError("Error while deleting directory: {0}, Error: {1}", directory, e.Message);
         }
       });
+
+    if (!deleted)
+    {
+      logger.LogDebug("No directory to delete");
+    }
   }
 }
