@@ -11,7 +11,7 @@ try
 {
   CommandLineArguments arguments = CommandLineArgumentsFactory.Create(args);
 
-  if (arguments.Command == CommandLineCommand.NoAction)
+  if (CommandLineCommand.NoAction == arguments.Command)
   {
     return;
   }

@@ -29,7 +29,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
       .OrderByDescending(o => o.profile.Priority)
       .ToList();
 
-    if (profiles.Count == 0)
+    if (0 == profiles.Count)
     {
       logger.LogDebug("Nothing to do, no applicable cleanup profiles");
       return;
