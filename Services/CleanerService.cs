@@ -4,16 +4,22 @@ using Microsoft.Extensions.Options;
 
 namespace FolderCleaner.Services;
 
-internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<CleanerConfiguration> configurationMonitor)
+internal class CleanerService
 {
-  public void ListProfiles()
+  private readonly ILogger _logger;
+  private readonly IOptionsMonitor<CleanerConfiguration> _configurationMonitor;
+
+  public CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<CleanerConfiguration> configurationMonitor)
   {
-    Console.WriteLine("Configured profiles:");
-    (configurationMonitor.CurrentValue?.Profiles ?? new Dictionary<string, CleanupProfile>())
-      .OrderByDescending(kvp => kvp.Value.Priority)
-      .ToList()
-      .ForEach(kvp => Console.WriteLine($"  - {kvp.Key}"));
+    _logger = logger;
+    _configurationMonitor = configurationMonitor;
   }
+
+  public IList<string> GetProfiles() =>
+    (_configurationMonitor.CurrentValue?.Profiles ?? new Dictionary<string, CleanupProfile>())
+      .OrderByDescending(kvp => kvp.Value.Priority)
+      .Select(kvp => kvp.Key)
+      .ToList();
 
   public void Clean(string root, IList<string> profileNames, bool simulate)
   {
@@ -22,16 +28,16 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
       throw new ArgumentException("Invalid parameter", nameof(root));
     }
 
-    logger.LogDebug("Folder cleanup initiated for {0} with simulate={1}", root, simulate);
+    _logger.LogDebug("Folder cleanup initiated for {0} with simulate={1}", root, simulate);
 
     IList<(string name, string? parent, CleanupProfile profile)> profiles = GetProfiles(profileNames, null,
-      configurationMonitor.CurrentValue?.Profiles ?? new Dictionary<string, CleanupProfile>())
+      _configurationMonitor.CurrentValue?.Profiles ?? new Dictionary<string, CleanupProfile>())
       .OrderByDescending(o => o.profile.Priority)
       .ToList();
 
     if (0 == profiles.Count)
     {
-      logger.LogDebug("Nothing to do, no applicable cleanup profiles");
+      _logger.LogDebug("Nothing to do, no applicable cleanup profiles");
       return;
     }
 
@@ -39,11 +45,11 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
     {
       if (parent is null)
       {
-        logger.LogDebug("Cleanup profile '{0}' started", name);
+        _logger.LogDebug("Cleanup profile '{0}' started", name);
       }
       else
       {
-        logger.LogDebug("Linked cleanup profile '{0}' from '{1}' started", name, parent);
+        _logger.LogDebug("Linked cleanup profile '{0}' from '{1}' started", name, parent);
       }
 
       DeleteFiles(root, profile, simulate);
@@ -51,11 +57,11 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
 
       if (parent is null)
       {
-        logger.LogDebug("Cleanup profile '{0}' completed", name);
+        _logger.LogDebug("Cleanup profile '{0}' completed", name);
       }
       else
       {
-        logger.LogDebug("Linked cleanup profile '{0}' from '{1}' completed", name, parent);
+        _logger.LogDebug("Linked cleanup profile '{0}' from '{1}' completed", name, parent);
       }
     }
   }
@@ -74,7 +80,7 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
     {
       if (!configuredProfiles.TryGetValue(name, out CleanupProfile? profile))
       {
-        logger.LogWarning("Skipping unconfigured cleanup profile '{0}'", name);
+        _logger.LogWarning("Skipping unconfigured cleanup profile '{0}'", name);
         continue;
       }
 
@@ -109,17 +115,17 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
 
           action.Invoke(file);
           deleted = true;
-          logger.LogInformation("Deleted file: {0}", file);
+          _logger.LogInformation("Deleted file: {0}", file);
         }
         catch (Exception e)
         {
-          logger.LogError("Error while deleting file: {0}, Error: {1}", file, e.Message);
+          _logger.LogError("Error while deleting file: {0}, Error: {1}", file, e.Message);
         }
       });
 
     if (!deleted)
     {
-      logger.LogDebug("No file to delete");
+      _logger.LogDebug("No file to delete");
     }
   }
 
@@ -146,17 +152,17 @@ internal class CleanerService(ILogger<CleanerService> logger, IOptionsMonitor<Cl
 
           action.Invoke(directory);
           deleted = true;
-          logger.LogInformation("Deleted directory: {0}", directory);
+          _logger.LogInformation("Deleted directory: {0}", directory);
         }
         catch (Exception e)
         {
-          logger.LogError("Error while deleting directory: {0}, Error: {1}", directory, e.Message);
+          _logger.LogError("Error while deleting directory: {0}, Error: {1}", directory, e.Message);
         }
       });
 
     if (!deleted)
     {
-      logger.LogDebug("No directory to delete");
+      _logger.LogDebug("No directory to delete");
     }
   }
 }

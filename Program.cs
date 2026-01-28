@@ -1,10 +1,11 @@
 ﻿using FolderCleaner.DTOs;
+using FolderCleaner.Extensions;
 using FolderCleaner.Services;
 using FolderCleaner.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.SetupCustom(LoggingType.Verbose));
+ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.Setup(LoggingType.Verbose));
 ILogger logger = loggerFactory.CreateLogger<Program>();
 
 try
@@ -17,7 +18,7 @@ try
   }
 
   loggerFactory.Dispose();
-  loggerFactory = LoggerFactory.Create(builder => builder.SetupCustom(arguments.Logger));
+  loggerFactory = LoggerFactory.Create(builder => builder.Setup(arguments.Logger));
   logger = loggerFactory.CreateLogger<Program>();
 
   ServiceProvider serviceProvider = new ServiceCollection()
@@ -35,7 +36,10 @@ try
       cleanerService.Clean(arguments.Root!, arguments.Profiles!, arguments.Simulate);
       break;
     case CommandLineCommand.ListProfiles:
-      cleanerService.ListProfiles();
+      Console.WriteLine("Configured profiles:");
+      cleanerService.GetProfiles()
+        .ToList()
+        .ForEach(key => Console.WriteLine($"  - {key}"));
       break;
   }
 }

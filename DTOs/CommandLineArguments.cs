@@ -1,6 +1,6 @@
 ﻿namespace FolderCleaner.DTOs;
 
-internal class CommandLineArguments
+internal record CommandLineArguments
 {
   public string? Root { get; init; }
   public string? ConfigurationFile { get; init; }

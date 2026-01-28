@@ -32,7 +32,7 @@ internal class CustomConsoleFormatter : ConsoleFormatter
       case LoggingType.Normal:
         break;
       case LoggingType.Verbose:
-        message = $"{GetTimestamp()} [{ToString(logEntry.LogLevel)}] {logEntry.Category}: {message}";
+        message = $"{GetTimestamp()} [{logEntry.LogLevel}] {logEntry.Category}: {message}";
         break;
     }
 
@@ -41,16 +41,4 @@ internal class CustomConsoleFormatter : ConsoleFormatter
 
   private string GetTimestamp() =>
     (_options.UseUtcTimestamp ? DateTime.UtcNow : DateTime.Now).ToString(_options.TimestampFormat);
-
-  private static string ToString(LogLevel level) =>
-    level switch
-    {
-      LogLevel.Trace => "Trace",
-      LogLevel.Debug => "Debug",
-      LogLevel.Information => "Info",
-      LogLevel.Warning => "Warn",
-      LogLevel.Error => "Error",
-      LogLevel.Critical => "Critical",
-      _ => throw new NotSupportedException($"{nameof(LogLevel)}.{level} not supported")
-    };
 }
